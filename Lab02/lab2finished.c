@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 #include <string.h>
 
 #define MAX_CHAR 50
 #define MAX_LEN 1000
+#define NUM_THREADS
 
 struct student
 {
@@ -18,6 +20,10 @@ int stdcmp(const void *std1, const void *std2){
 
 int main(){
     struct student stu_array[8];
+
+    // omp_set_num_threads(NUM_THREADS);
+
+    
 
     for (int i=0; i<8; i++){
         char file_name[25];
