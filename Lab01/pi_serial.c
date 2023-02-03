@@ -2,7 +2,7 @@
 #include <omp.h>
 
 
-#define NUM_THREADS 2
+#define NUM_THREADS 20
 
 
 static long num_steps = 1000000;
