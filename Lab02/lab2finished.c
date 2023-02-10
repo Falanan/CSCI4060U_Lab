@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
+// #include <omp.h>
 #include <string.h>
 
 #define MAX_CHAR 50
 #define MAX_LEN 1000
-#define NUM_THREADS
+// #define NUM_THREADS
 
 struct student
 {
