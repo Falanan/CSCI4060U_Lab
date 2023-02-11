@@ -77,10 +77,10 @@ int main(){
     double longitude[ARRAY_LEN];
     int lo_size = 0;
 
-    char latitude_filename[15] = "latitude_t.csv";
-    char longitude_filename[17] = "longitude_t.csv";
-    // char latitude_filename[13] = "latitude.csv";
-    // char longitude_filename[14] = "longitude.csv";
+    // char latitude_filename[15] = "latitude_t.csv";
+    // char longitude_filename[17] = "longitude_t.csv";
+    char latitude_filename[13] = "latitude.csv";
+    char longitude_filename[14] = "longitude.csv";
 
     FILE *fp_la, *fp_lo;
     fp_la = fopen(latitude_filename, "r");
@@ -223,3 +223,10 @@ int main(){
     return 0;
 }
 
+
+// wenbo@DESKTOP-AK0LUOF:/mnt/e/OntarioTech/CSCI4060U_Lab/Lab03$ time ./a.out | wc
+//    2000   18000  104126
+
+// real    0m0.039s
+// user    0m0.070s
+// sys     0m0.024s
