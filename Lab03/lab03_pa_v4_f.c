@@ -7,6 +7,15 @@
 #define ARRAY_LEN 10
 #define NUM_THREADS 4
 
+/*
+Function convert decmial latitude to DMS form
+Parameters:
+decmial: Double, represent the decimal latitude data
+*d : int pointet, means degrees
+*m : int pointer, means minutes
+*s : int pointer, means seconds
+*dir: char pointer, means the direction "N" or "S"
+*/
 void laDecimalToDMS(double decimal, int *d, int *m, int *s, char *dir) {
     *dir = (decimal < 0) ? 'S' : 'N';
 
@@ -17,7 +26,15 @@ void laDecimalToDMS(double decimal, int *d, int *m, int *s, char *dir) {
 }
 
 
-
+/*
+Function convert decmial longtitude to DMS form
+Parameters:
+decmial: Double, represent the decimal longtitude data
+*d : int pointet, means degrees
+*m : int pointer, means minutes
+*s : int pointer, means seconds
+*dir: char pointer, means the direction "W" or "E"
+*/
 void loDecimalToDMS(double decimal, int *d, int *m, double *s, char *dir) {
     *dir = (decimal < 0) ? 'W' : 'E';
 
@@ -30,39 +47,63 @@ void loDecimalToDMS(double decimal, int *d, int *m, double *s, char *dir) {
 
 
 
+/*
+Enqueue function, takes a number, then push back to the queue
+Parameters:
+*array: double pointer, points to the queue
+num: double, represent the number need to push back to the queue
+*size: int pointer, points to the size of the number
 
+Return value:
+return 0 means the array is full and cannot add value into it
+return 1 means success
+*/
 int enqueue(double *array, double num, int *size){
-    // return 0 means the array is full and cannot add value into it
-    // return 1 means success
-
     if (*size == ARRAY_LEN)
     {
         return 0;
     }else
-    {
+    {   
+        #pragma omp atomic write
         array[*size] = num;
-        *size += 1;
+        #pragma omp atomic write
+        *size  = *size + 1;
         return 1;
     }
+
+    
 }
 
+/**
+ * Funcrion dequeue
+ * In this function, if the size of the array equals to 0, then return a special sign means
+   there is no element inside of the array, otherwise return the element in index of 0.
+ * Then, moves all elements in the array one position to the left.
+ * Parameters:
+ * double: *array, pointer points to the array
+ * int *size: pointer points to the size of the array
+*/
 double dequeue(double *array, int *size){
     double temp;
-    if (*size == 0)
+    #pragma omp critical
     {
-        return -999.0;
-    }else
-    {
-        temp = array[0];
-        if (*size != 1)
+        if (*size == 0)
         {
-            for (int i = 0; i < *size; i++)
+            temp = -999.0;
+        }else
+        {
+            temp = array[0];
+            if (*size != 1)
             {
-                array[i] = array[i+1];
+                for (int i = 0; i < *size; i++)
+                {
+                    array[i] = array[i+1];
+                }
             }
+            *size -= 1;
         }
-        *size -= 1;
     }
+    
     
     
 
@@ -82,37 +123,37 @@ int main(){
     char latitude_filename[13] = "latitude.csv";
     char longitude_filename[14] = "longitude.csv";
 
+    // open file
     FILE *fp_la, *fp_lo;
     fp_la = fopen(latitude_filename, "r");
     fp_lo = fopen(longitude_filename, "r");
     size_t len = (size_t)15;
     // char *line = (char *) malloc(sizeof(char) * len);
 
+    // If cannot open the file, quit the program
     if (fp_la == NULL | fp_lo == NULL) {
         printf("Unable to open file\n");
         exit(0);
     }
-    // if (fp_la == NULL) {
-    //     printf("Unable to open file\n");
-    //     exit(0);
-    // }
 
     // flag for end of file
     int eof_la = 0;
     int eof_lo = 0;
+
     // Parallel region
     omp_set_num_threads(NUM_THREADS);
     #pragma omp parallel
     {
         int thread_id = omp_get_thread_num();
 
-        if (thread_id == 0)
-        {
+        if (thread_id == 0) // Thread 0 read file latitude
+        {   
+            // a tag represent the file reached the end of the file
             int la_status = 0;
             while(!eof_la){
                 char *line = (char *) malloc(sizeof(char) * len);
-                // char *line;
                 la_status = getline(&line, &len, fp_la);
+                // if reach the end of the file, close the file, the set the EOF flag to 1
                 if (la_status == -1)
                 {
                     // la_file_result = fclose(fp_la);
@@ -121,10 +162,11 @@ int main(){
                     eof_la = 1;
                     break;
                 }
-                
+                // convert the string number to double
                 double la = strtod(line, NULL);
                 #pragma omp critical (critical_section1)
                 {
+                    // flag represent the status of if successfully write data to queue
                     int status = 0;
                     while (status == 0)
                     {
@@ -134,9 +176,9 @@ int main(){
                 }
                 free(line);
             }
-        }else if (thread_id == 1)
+        }else if (thread_id == 1) // Thread 1 process the dequeue of latitude
         {
-            while (!eof_la || la_size != 0)
+            while (!eof_la || la_size != 0) // File not closed and the queue not empty
             {
                 if (la_size != 0)
                 {
