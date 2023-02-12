@@ -77,10 +77,10 @@ int main(){
     double longitude[ARRAY_LEN];
     int lo_size = 0;
 
-    char latitude_filename[15] = "latitude_t.csv";
-    char longitude_filename[17] = "longitude_t.csv";
-    // char latitude_filename[13] = "latitude.csv";
-    // char longitude_filename[14] = "longitude.csv";
+    // char latitude_filename[15] = "latitude_t.csv";
+    // char longitude_filename[17] = "longitude_t.csv";
+    char latitude_filename[13] = "latitude.csv";
+    char longitude_filename[14] = "longitude.csv";
 
     FILE *fp_la, *fp_lo;
     fp_la = fopen(latitude_filename, "r");
