@@ -9,7 +9,7 @@ int fib(int n) {
 }
 
 int main() {
-    int n = 20;
+    int n = 30;
 
     for (int i = 0; i < n; i++) {
         int result = fib(i);
@@ -19,3 +19,5 @@ int main() {
 
     return 0;
 }
+
+

@@ -19,7 +19,7 @@ int fib(int n) {
 }
 
 int main() {
-    int n = 20;
+    int n = 30;
 
     // Set number of threads
     omp_set_num_threads(NUM_THREADS);
@@ -27,12 +27,15 @@ int main() {
     #pragma omp parallel
     {
         #pragma omp for ordered
+        // #pragma omp for
         for (int i = 0; i < n; i++) {
             #pragma omp ordered
             {
                 int result = fib(i);
                 printf("%d ", result);
             }
+            // int result = fib(i);
+            // printf("%d ", result);
             
         }
         // printf("\n");
