@@ -121,7 +121,7 @@ struct img_n_level make_square(cv::Mat I) {
 
 
 void find_sign(cv::Mat orig_img, cv::Mat orig_template){
-    cv::Mat orig_img_copy = orig_img.clone()
+    cv::Mat orig_img_copy = orig_img.clone();
     
 
 }
