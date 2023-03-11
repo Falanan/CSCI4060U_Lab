@@ -2,6 +2,8 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 
+// g++ challenge_btn_det.cpp `pkg-config --cflags --libs opencv4` -- x86 Ubuntu
+
 
 using namespace std;
 
