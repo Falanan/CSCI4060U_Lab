@@ -3,6 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include <cmath>
+#include <algorithm>
 
 // g++ challenge_btn_det.cpp `pkg-config --cflags --libs opencv4` -- x86 Ubuntu
 // g++ challenge_btn_det.cpp -std=c++11 `pkg-config --cflags --libs opencv4` --arm64 Ubuntu
@@ -124,6 +125,117 @@ struct img_n_level make_square(cv::Mat I) {
 }
 
 
+void find_match_box(vector<cv::Point> match_box_list){
+
+    vector<int> x_val;
+    vector<int> y_val;
+
+    for (int index = 0; index < match_box_list.size(); index++)
+    {
+        x_val.push_back(match_box_list.at(index).x);
+        y_val.push_back(match_box_list.at(index).y);
+    }
+
+    vector<int> highest_possible_x_pos;
+    vector<int> highest_possible_y_pos;
+
+
+    // int numToFind = 608;
+
+    // if (std::find(x_val.begin(), x_val.end(), numToFind) != x_val.end()) {
+    //     std::cout << "Element " << numToFind << " is present in the vector." << std::endl;
+    // } else {
+    //     std::cout << "Element " << numToFind << " is not present in the vector." << std::endl;
+    // }
+
+    for (int index = 0; index < x_val.size(); index++)
+    {
+        int count = 0;
+
+        if (find(x_val.begin(), x_val.end(), x_val.size()) == x_val.end())
+        {
+            for (int num = x_val.at(index)-3; num < x_val.at(index)+3; num++)
+            {
+                if (find(x_val.begin(), x_val.end(), num) != x_val.end())
+                {
+                    count += std::count(x_val.begin(), x_val.end(), num);
+                }          
+                
+            }
+        }
+
+        if (count >= 7)
+        {
+            highest_possible_x_pos.push_back(x_val.at(index));
+        }
+
+        // int count = std::count(x_val.begin(), x_val.end(), x_val.at(index));
+        // cout << x_val.at(index) << " appear " << count << " times" << endl;
+    }
+
+    cout << "X pos:" << endl;
+    for (int i = 0; i < highest_possible_x_pos.size(); i++)
+    {
+        cout << highest_possible_x_pos.at(i) << endl;
+    }
+
+
+    
+    for (int index = 0; index < y_val.size(); index++)
+    {
+        int count = 0;
+
+        if (find(y_val.begin(), y_val.end(), y_val.size()) == y_val.end())
+        {
+            for (int num = y_val.at(index)-3; num < y_val.at(index)+3; num++)
+            {
+                if (find(y_val.begin(), y_val.end(), num) != y_val.end())
+                {
+                    count += std::count(y_val.begin(), y_val.end(), num);
+                }          
+                
+            }
+        }
+
+        if (count >= 7)
+        {
+            highest_possible_y_pos.push_back(y_val.at(index));
+        }
+
+        // int count = std::count(y_val.begin(), y_val.end(), y_val.at(index));
+        // cout << y_val.at(index) << " appear " << count << " times" << endl;
+    }
+
+    cout << "Y pos:" << endl;
+    for (int i = 0; i < highest_possible_y_pos.size(); i++)
+    {
+        cout << highest_possible_y_pos.at(i) << endl;
+    }
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    // for (int index = 0; index < x_val.size(); index++)
+    // {
+    //     cout << x_val.at(index) << endl;
+    // }
+    
+
+
+}
+
+
 
 void find_sign(cv::Mat orig_img, cv::Mat orig_template){
 
@@ -201,10 +313,11 @@ void find_sign(cv::Mat orig_img, cv::Mat orig_template){
             
         }
     }
-    for (int i = 0; i < match_box_list.size(); i++)
-    {
-        cout << match_box_list.at(i) << endl;
-    }
+    find_match_box(match_box_list);
+    // for (int i = 0; i < match_box_list.size(); i++)
+    // {
+    //     cout << match_box_list.at(i) << endl;
+    // }
     
 }
 
