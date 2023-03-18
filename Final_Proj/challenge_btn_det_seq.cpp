@@ -5,8 +5,8 @@
 #include <cmath>
 #include <algorithm>
 
-// g++ challenge_btn_det.cpp `pkg-config --cflags --libs opencv4` -- x86 Ubuntu
-// g++ challenge_btn_det.cpp -std=c++11 `pkg-config --cflags --libs opencv4` --arm64 Ubuntu
+// g++ challenge_btn_det_seq.cpp `pkg-config --cflags --libs opencv4` -- x86 Ubuntu
+// g++ challenge_btn_det_seq.cpp -std=c++11 `pkg-config --cflags --libs opencv4` --arm64 Ubuntu
 
 
 using namespace std;
@@ -23,6 +23,18 @@ struct HighlightResult {
     cv::Point loc;
     double val;
 };
+
+
+cv::Mat draw_rect(cv::Mat I, cv::Rect bbox) {
+    /*
+    This function is used to draw the final match box
+    */
+    cv::Mat I_ = I.clone();
+    cv::Scalar c = (I_.type() == CV_32F) ? cv::Scalar(1.0, 0, 0) : cv::Scalar(255, 0, 0);
+    cv::rectangle(I_, bbox, c, 3);
+    return I_;
+}
+
 
 
 HighlightResult highlight(cv::Mat R, cv::Mat T, cv::Mat I, bool use_max=true) {
@@ -125,7 +137,7 @@ struct img_n_level make_square(cv::Mat I) {
 }
 
 
-void find_match_box(vector<cv::Point> match_box_list){
+cv::Point find_match_box(vector<cv::Point> match_box_list){
 
     vector<int> x_val;
     vector<int> y_val;
@@ -139,14 +151,6 @@ void find_match_box(vector<cv::Point> match_box_list){
     vector<int> highest_possible_x_pos;
     vector<int> highest_possible_y_pos;
 
-
-    // int numToFind = 608;
-
-    // if (std::find(x_val.begin(), x_val.end(), numToFind) != x_val.end()) {
-    //     std::cout << "Element " << numToFind << " is present in the vector." << std::endl;
-    // } else {
-    //     std::cout << "Element " << numToFind << " is not present in the vector." << std::endl;
-    // }
 
     for (int index = 0; index < x_val.size(); index++)
     {
@@ -173,11 +177,11 @@ void find_match_box(vector<cv::Point> match_box_list){
         // cout << x_val.at(index) << " appear " << count << " times" << endl;
     }
 
-    cout << "X pos:" << endl;
-    for (int i = 0; i < highest_possible_x_pos.size(); i++)
-    {
-        cout << highest_possible_x_pos.at(i) << endl;
-    }
+    // cout << "X pos:" << endl;
+    // for (int i = 0; i < highest_possible_x_pos.size(); i++)
+    // {
+    //     cout << highest_possible_x_pos.at(i) << endl;
+    // }
 
 
     
@@ -206,31 +210,36 @@ void find_match_box(vector<cv::Point> match_box_list){
         // cout << y_val.at(index) << " appear " << count << " times" << endl;
     }
 
-    cout << "Y pos:" << endl;
-    for (int i = 0; i < highest_possible_y_pos.size(); i++)
+    // cout << "Y pos:" << endl;
+    // for (int i = 0; i < highest_possible_y_pos.size(); i++)
+    // {
+    //     cout << highest_possible_y_pos.at(i) << endl;
+    // }
+
+    int x_avg = 0;
+    int y_avg = 0;
+
+    for (int index = 0; index < highest_possible_x_pos.size(); index++)
     {
-        cout << highest_possible_y_pos.at(i) << endl;
+        x_avg += highest_possible_x_pos.at(index);
     }
 
+    for (int index = 0; index < highest_possible_y_pos.size(); index++)
+    {
+        y_avg += highest_possible_y_pos.at(index);
+    }
     
+    x_avg = x_avg / highest_possible_x_pos.size();
+    y_avg = y_avg / highest_possible_y_pos.size();
     
+    // cout << "x_avg: " << x_avg << " y_avg: " <<  y_avg << endl;
+
+    cv::Point match_pos = {x_avg, y_avg};
+
+    cout << match_pos << endl;
 
 
-
-
-
-
-
-
-
-
-
-
-    // for (int index = 0; index < x_val.size(); index++)
-    // {
-    //     cout << x_val.at(index) << endl;
-    // }
-    
+    return match_pos;
 
 
 }
@@ -272,6 +281,8 @@ void find_sign(cv::Mat orig_img, cv::Mat orig_template){
                     cv::Mat R;
                     cv::matchTemplate(gp_orig.at(k), gpT.at(j), R, cv::TM_CCORR_NORMED);
                     useful_match.push_back(R);
+                    // namedWindow("Original Image", cv::WINDOW_NORMAL);
+                    // imshow("Original Image", R);
                 }
                 // cv::Mat R_val(useful_match.size(), 3, CV_64F);
                 // cout << R_val.at<double>(0, 1) << endl;
@@ -313,11 +324,18 @@ void find_sign(cv::Mat orig_img, cv::Mat orig_template){
             
         }
     }
-    find_match_box(match_box_list);
-    // for (int i = 0; i < match_box_list.size(); i++)
-    // {
-    //     cout << match_box_list.at(i) << endl;
-    // }
+    cv::Point match_pos = find_match_box(match_box_list);
+
+    cv::Rect draw_box = {match_pos.x, match_pos.y, 32, 32};
+
+    cv::Mat match_img = draw_rect(orig_img_copy, draw_box);
+    namedWindow("Original Image", cv::WINDOW_NORMAL);
+    imshow("Original Image",match_img);
+    cv::waitKey(0);
+
+
+
+
     
 }
 
