@@ -152,15 +152,15 @@ cv::Point find_match_box(std::vector<cv::Point> match_box_list){
     std::vector<int> highest_possible_x_pos;
     std::vector<int> highest_possible_y_pos;
 
-    omp_set_num_threads(2);
+    // omp_set_num_threads(2);
 
     #pragma omp parallel
     {
         #pragma omp for nowait
         for (int index = 0; index < x_val.size(); index++)
         {
-            int thread_id = omp_get_thread_num();
-            std::cout << "ID: " << thread_id << std::endl;
+            // int thread_id = omp_get_thread_num();
+            // std::cout << "ID: " << thread_id << std::endl;
             int count = 0;
 
             if (find(x_val.begin(), x_val.end(), x_val.size()) == x_val.end())

@@ -31,7 +31,7 @@ challenge_btn_det_class(string template_path){
     std::vector<cv::Mat> hr_temp = half_resolution_image(sq_temp_and_nlevels.img, sq_temp_and_nlevels.level-3);
 
     // generate gaussian down pyramid for each resolution level, then append the image to the template list
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int index_hr = 0; index_hr < hr_temp.size(); index_hr++)
     {
         struct img_n_level sq_temp_img = make_square(hr_temp.at(index_hr));
