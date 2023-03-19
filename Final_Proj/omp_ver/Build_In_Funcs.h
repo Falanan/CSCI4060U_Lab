@@ -57,12 +57,12 @@ std::vector<cv::Mat> gen_gaussian_pyramid(cv::Mat I, int levels=6)
     cv::Mat G = I.clone();
     pI.push_back(G);
 
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int i = 0; i < levels; i++)
     {
-        #pragma omp critical
+        // #pragma omp critical
         cv::pyrDown(G, G);
-        #pragma omp critical
+        // #pragma omp critical
         pI.push_back(G);
     }
 
@@ -73,36 +73,36 @@ std::vector<cv::Mat> gen_gaussian_pyramid(cv::Mat I, int levels=6)
  * This function is used to generate half resulation images
  * Returns a vector contains different resulation images
  * */
-// std::vector<cv::Mat> half_resolution_image(cv::Mat I, int levels = 6)
-// {
-//     std::vector<cv::Mat> pI;
-//     cv::Mat G = I.clone();
-//     pI.push_back(G);
-//     for (int i = 0; i < levels; i++)
-//     {
-//         cv::Mat H;
-//         cv::resize(G, H, cv::Size(G.cols / 2, G.rows / 2));
-//         pI.push_back(H);
-//         G = H.clone();
-//     }
-//     return pI;
-// }
 std::vector<cv::Mat> half_resolution_image(cv::Mat I, int levels = 6)
 {
     std::vector<cv::Mat> pI;
     cv::Mat G = I.clone();
     pI.push_back(G);
-
-    #pragma omp parallel for
     for (int i = 0; i < levels; i++)
     {
-        #pragma omp critical
-        cv::resize(G, G, cv::Size(G.cols / 2, G.rows / 2));
-        #pragma omp critical
-        pI.push_back(G);
+        cv::Mat H;
+        cv::resize(G, H, cv::Size(G.cols / 2, G.rows / 2));
+        pI.push_back(H);
+        G = H.clone();
     }
     return pI;
 }
+// std::vector<cv::Mat> half_resolution_image(cv::Mat I, int levels = 6)
+// {
+//     std::vector<cv::Mat> pI;
+//     cv::Mat G = I.clone();
+//     pI.push_back(G);
+
+//     #pragma omp parallel for
+//     for (int i = 0; i < levels; i++)
+//     {
+//         #pragma omp critical
+//         cv::resize(G, G, cv::Size(G.cols / 2, G.rows / 2));
+//         #pragma omp critical
+//         pI.push_back(G);
+//     }
+//     return pI;
+// }
 
 
 
