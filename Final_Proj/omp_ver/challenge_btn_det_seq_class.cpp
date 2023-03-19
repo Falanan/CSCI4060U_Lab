@@ -31,7 +31,7 @@ challenge_btn_det_class(string template_path){
     std::vector<cv::Mat> hr_temp = half_resolution_image(sq_temp_and_nlevels.img, sq_temp_and_nlevels.level-3);
 
     // generate gaussian down pyramid for each resolution level, then append the image to the template list
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for (int index_hr = 0; index_hr < hr_temp.size(); index_hr++)
     {
         struct img_n_level sq_temp_img = make_square(hr_temp.at(index_hr));
@@ -69,45 +69,51 @@ cv::Point find_sign(cv::Mat orig_img){
 
     std::vector<cv::Point> match_box_list;
 
-    for (int temp_index = 0; temp_index < this->template_list.size(); temp_index++)
+    #pragma omp parallel
     {
-        // cout << "Index: " << temp_index << endl;
-        std::vector<cv::Mat> useful_match;
-        for (int img_index = 0; img_index < gp_orig.size(); img_index++)
+        #pragma omp for
+        for (int temp_index = 0; temp_index < this->template_list.size(); temp_index++)
         {
-            if (this->template_list.at(temp_index).cols <= gp_orig.at(img_index).cols && this->template_list.at(temp_index).rows <= gp_orig.at(img_index).rows)
-                {
-                    // cout << " Usefur matches" << endl;
-                    cv::Mat R;
-                    cv::matchTemplate(gp_orig.at(img_index), this->template_list.at(temp_index), R, cv::TM_CCORR_NORMED);
-                    useful_match.push_back(R);
-                }
-        }
-
-        vector<HighlightResult> R_val;
-        for (int x = 0; x < useful_match.size(); x++)
-        {
-            cv::Mat R_ = useful_match.at(x);
-            cv::Mat T_ = this->template_list.at(temp_index);
-            cv::Mat I_ = gp_orig.at(x);
-
-            HighlightResult res = highlight(R_, T_, I_);
-            R_val.push_back(res);
-        }
-
-        int highest_match_pos = 0;
-        for (int index = 0; index < R_val.size(); index++)
-        {
-            if (R_val.at(index).val > R_val.at(highest_match_pos).val)
+            // cout << "Index: " << temp_index << endl;
+            std::vector<cv::Mat> useful_match;
+            for (int img_index = 0; img_index < gp_orig.size(); img_index++)
             {
-                    highest_match_pos = index;
+                if (this->template_list.at(temp_index).cols <= gp_orig.at(img_index).cols && this->template_list.at(temp_index).rows <= gp_orig.at(img_index).rows)
+                    {
+                        // cout << " Usefur matches" << endl;
+                        cv::Mat R;
+                        cv::matchTemplate(gp_orig.at(img_index), this->template_list.at(temp_index), R, cv::TM_CCORR_NORMED);
+                        useful_match.push_back(R);
+                    }
             }
+
+            vector<HighlightResult> R_val;
+            for (int x = 0; x < useful_match.size(); x++)
+            {
+                cv::Mat R_ = useful_match.at(x);
+                cv::Mat T_ = this->template_list.at(temp_index);
+                cv::Mat I_ = gp_orig.at(x);
+
+                HighlightResult res = highlight(R_, T_, I_);
+                R_val.push_back(res);
+            }
+
+            int highest_match_pos = 0;
+            for (int index = 0; index < R_val.size(); index++)
+            {
+                if (R_val.at(index).val > R_val.at(highest_match_pos).val)
+                {
+                        highest_match_pos = index;
+                }
+            }
+
+            cv::Point highest_match_loc = R_val.at(highest_match_pos).loc;
+            match_box_list.push_back(highest_match_loc * pow(2, highest_match_pos));
+            
         }
 
-        cv::Point highest_match_loc = R_val.at(highest_match_pos).loc;
-        match_box_list.push_back(highest_match_loc * pow(2, highest_match_pos));
-        
     }
+
 
     cv::Point match_point = find_match_box(match_box_list);
 
