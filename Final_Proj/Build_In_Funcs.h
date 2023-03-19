@@ -5,7 +5,6 @@
 #include <cmath>
 #include <algorithm>
 #include <string>
-#include <omp.h>
 
 struct img_n_level
 {

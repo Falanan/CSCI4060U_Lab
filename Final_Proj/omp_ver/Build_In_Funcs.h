@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <string>
 #include <omp.h>
-#include <concurrent_vector.h>
 
 struct img_n_level
 {
@@ -58,9 +57,12 @@ std::vector<cv::Mat> gen_gaussian_pyramid(cv::Mat I, int levels=6)
     cv::Mat G = I.clone();
     pI.push_back(G);
 
+    #pragma omp parallel for
     for (int i = 0; i < levels; i++)
     {
+        #pragma omp critical
         cv::pyrDown(G, G);
+        #pragma omp critical
         pI.push_back(G);
     }
 
@@ -71,20 +73,39 @@ std::vector<cv::Mat> gen_gaussian_pyramid(cv::Mat I, int levels=6)
  * This function is used to generate half resulation images
  * Returns a vector contains different resulation images
  * */
+// std::vector<cv::Mat> half_resolution_image(cv::Mat I, int levels = 6)
+// {
+//     std::vector<cv::Mat> pI;
+//     cv::Mat G = I.clone();
+//     pI.push_back(G);
+//     for (int i = 0; i < levels; i++)
+//     {
+//         cv::Mat H;
+//         cv::resize(G, H, cv::Size(G.cols / 2, G.rows / 2));
+//         pI.push_back(H);
+//         G = H.clone();
+//     }
+//     return pI;
+// }
 std::vector<cv::Mat> half_resolution_image(cv::Mat I, int levels = 6)
 {
     std::vector<cv::Mat> pI;
     cv::Mat G = I.clone();
     pI.push_back(G);
+
+    #pragma omp parallel for
     for (int i = 0; i < levels; i++)
     {
-        cv::Mat H;
-        cv::resize(G, H, cv::Size(G.cols / 2, G.rows / 2));
-        pI.push_back(H);
-        G = H.clone();
+        #pragma omp critical
+        cv::resize(G, G, cv::Size(G.cols / 2, G.rows / 2));
+        #pragma omp critical
+        pI.push_back(G);
     }
     return pI;
 }
+
+
+
 
 
 // cv::Mat make_square(cv::Mat I) {
@@ -131,82 +152,100 @@ cv::Point find_match_box(std::vector<cv::Point> match_box_list){
     std::vector<int> highest_possible_x_pos;
     std::vector<int> highest_possible_y_pos;
 
+    omp_set_num_threads(2);
 
-    for (int index = 0; index < x_val.size(); index++)
+    #pragma omp parallel
     {
-        int count = 0;
-
-        if (find(x_val.begin(), x_val.end(), x_val.size()) == x_val.end())
+        #pragma omp for nowait
+        for (int index = 0; index < x_val.size(); index++)
         {
-            for (int num = x_val.at(index)-3; num < x_val.at(index)+3; num++)
+            int thread_id = omp_get_thread_num();
+            std::cout << "ID: " << thread_id << std::endl;
+            int count = 0;
+
+            if (find(x_val.begin(), x_val.end(), x_val.size()) == x_val.end())
             {
-                if (find(x_val.begin(), x_val.end(), num) != x_val.end())
+                for (int num = x_val.at(index)-3; num < x_val.at(index)+3; num++)
                 {
-                    count += std::count(x_val.begin(), x_val.end(), num);
-                }          
-                
+                    if (find(x_val.begin(), x_val.end(), num) != x_val.end())
+                    {
+                        #pragma omp atomic
+                        count += std::count(x_val.begin(), x_val.end(), num);
+                    }          
+                    
+                }
+            }
+
+            if (count >= 7)
+            {
+                #pragma omp critical
+                highest_possible_x_pos.push_back(x_val.at(index));
             }
         }
 
-        if (count >= 7)
+        #pragma omp for nowait
+        for (int index = 0; index < y_val.size(); index++)
         {
-            highest_possible_x_pos.push_back(x_val.at(index));
+            int count = 0;
+
+            if (find(y_val.begin(), y_val.end(), y_val.size()) == y_val.end())
+            {
+                for (int num = y_val.at(index)-3; num < y_val.at(index)+3; num++)
+                {
+                    if (find(y_val.begin(), y_val.end(), num) != y_val.end())
+                    {
+                        #pragma omp atomic
+                        count += std::count(y_val.begin(), y_val.end(), num);
+                    }          
+                    
+                }
+            }
+
+            if (count >= 7)
+            {
+                #pragma omp critical
+                highest_possible_y_pos.push_back(y_val.at(index));
+            }
         }
 
-        // int count = std::count(x_val.begin(), x_val.end(), x_val.at(index));
-        // cout << x_val.at(index) << " appear " << count << " times" << endl;
+
+
     }
-
-    // cout << "X pos:" << endl;
-    // for (int i = 0; i < highest_possible_x_pos.size(); i++)
-    // {
-    //     cout << highest_possible_x_pos.at(i) << endl;
-    // }
-
 
     
-    for (int index = 0; index < y_val.size(); index++)
+    std::cout << "X pos:" << std::endl;
+    for (int i = 0; i < highest_possible_x_pos.size(); i++)
     {
-        int count = 0;
-
-        if (find(y_val.begin(), y_val.end(), y_val.size()) == y_val.end())
-        {
-            for (int num = y_val.at(index)-3; num < y_val.at(index)+3; num++)
-            {
-                if (find(y_val.begin(), y_val.end(), num) != y_val.end())
-                {
-                    count += std::count(y_val.begin(), y_val.end(), num);
-                }          
-                
-            }
-        }
-
-        if (count >= 7)
-        {
-            highest_possible_y_pos.push_back(y_val.at(index));
-        }
-
-        // int count = std::count(y_val.begin(), y_val.end(), y_val.at(index));
-        // cout << y_val.at(index) << " appear " << count << " times" << endl;
+        std::cout << highest_possible_x_pos.at(i) << " ";
     }
+    std::cout << std::endl;
 
-    // cout << "Y pos:" << endl;
-    // for (int i = 0; i < highest_possible_y_pos.size(); i++)
-    // {
-    //     cout << highest_possible_y_pos.at(i) << endl;
-    // }
+    std::cout << "Y pos:" << std::endl;
+    for (int i = 0; i < highest_possible_y_pos.size(); i++)
+    {
+        std::cout << highest_possible_y_pos.at(i) << " ";
+    }
+    std::cout << std::endl;
 
     int x_avg = 0;
     int y_avg = 0;
 
-    for (int index = 0; index < highest_possible_x_pos.size(); index++)
+    #pragma omp parallel
     {
-        x_avg += highest_possible_x_pos.at(index);
-    }
+        #pragma omp for nowait
+        for (int index = 0; index < highest_possible_x_pos.size(); index++)
+        {
+            #pragma omp atomic
+            x_avg += highest_possible_x_pos.at(index);
+        }
 
-    for (int index = 0; index < highest_possible_y_pos.size(); index++)
-    {
-        y_avg += highest_possible_y_pos.at(index);
+        #pragma omp for nowait
+        for (int index = 0; index < highest_possible_y_pos.size(); index++)
+        {
+            #pragma omp atomic
+            y_avg += highest_possible_y_pos.at(index);
+        }
+    
     }
     
     x_avg = x_avg / highest_possible_x_pos.size();
@@ -222,6 +261,8 @@ cv::Point find_match_box(std::vector<cv::Point> match_box_list){
     return match_pos;
 
 }
+
+
 
 
 
