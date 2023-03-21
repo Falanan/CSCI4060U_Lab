@@ -1,0 +1,28 @@
+OpenMP Version:
+Arm version of Ubuntu under a virtual machine in MacOS:
+6 threads:
+parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
+Benchmark 1: ./a.out
+  Time (mean ± σ):     61.360 s ±  1.985 s    [User: 273.244 s, System: 28.271 s]
+  Range (min … max):   58.232 s … 65.122 s    10 runs
+ 
+4 threads:
+parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
+Benchmark 1: ./a.out
+  Time (mean ± σ):     66.809 s ±  5.278 s    [User: 223.668 s, System: 26.352 s]
+  Range (min … max):   60.364 s … 73.523 s    10 runs
+
+
+2 threads:
+parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
+Benchmark 1: ./a.out
+  Time (mean ± σ):     115.998 s ±  1.213 s    [User: 198.042 s, System: 22.637 s]
+  Range (min … max):   113.964 s … 117.511 s    10 runs
+
+
+Sequential Version:
+
+parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/seq_ver$ hyperfine "./a.out"
+Benchmark 1: ./a.out
+  Time (mean ± σ):     218.469 s ±  4.234 s    [User: 195.000 s, System: 23.715 s]
+  Range (min … max):   212.808 s … 225.310 s    10 runs
