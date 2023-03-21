@@ -128,45 +128,47 @@ cv::Point find_match_box(std::vector<cv::Point> match_box_list){
 
 
 struct ThreadArgs {
-    int index;
+    int start_index;
+    int end_index;
     cv::Mat orig_img;
     std::vector<cv::Mat> template_list;
     std::vector<cv::Mat> gp_orig;
-    std::vector<cv::Point>* match_box_list;
+    std::vector<cv::Point> match_box_list;
     pthread_mutex_t* mutex;
 };
 
 void* match_template(void* arg) {
     
-    // ThreadArgs* thread_args = static_cast<ThreadArgs*>(arg);
-    ThreadArgs* thread_args = (ThreadArgs*)arg;
-    std::vector<cv::Mat> useful_match;
-    for (int img_index = 0; img_index < thread_args->gp_orig.size(); img_index++) {
-        if (thread_args->template_list.at(thread_args->index).cols <= thread_args->gp_orig.at(img_index).cols && 
-            thread_args->template_list.at(thread_args->index).rows <= thread_args->gp_orig.at(img_index).rows) {
-            cv::Mat R;
-            cv::matchTemplate(thread_args->gp_orig.at(img_index), thread_args->template_list.at(thread_args->index), R, cv::TM_CCORR_NORMED);
-            useful_match.push_back(R);
+    ThreadArgs* thread_args = static_cast<ThreadArgs*>(arg);
+    for (int temp_index = thread_args->start_index; temp_index < thread_args->end_index; temp_index++) {
+        std::vector<cv::Mat> useful_match;
+        for (int img_index = 0; img_index < thread_args->gp_orig.size(); img_index++) {
+            if (thread_args->template_list.at(temp_index).cols <= thread_args->gp_orig.at(img_index).cols && 
+                thread_args->template_list.at(temp_index).rows <= thread_args->gp_orig.at(img_index).rows) {
+                cv::Mat R;
+                cv::matchTemplate(thread_args->gp_orig.at(img_index), thread_args->template_list.at(temp_index), R, cv::TM_CCORR_NORMED);
+                useful_match.push_back(R);
+            }
         }
-    }
-    std::vector<HighlightResult> R_val;
-    for (int x = 0; x < useful_match.size(); x++) {
-        cv::Mat R_ = useful_match.at(x);
-        cv::Mat T_ = thread_args->template_list.at(thread_args->index);
-        cv::Mat I_ = thread_args->gp_orig.at(x);
-        HighlightResult res = highlight(R_, T_, I_);
-        R_val.push_back(res);
-    }
-    int highest_match_pos = 0;
-    for (int index = 0; index < R_val.size(); index++) {
-        if (R_val.at(index).val > R_val.at(highest_match_pos).val) {
-            highest_match_pos = index;
+        std::vector<HighlightResult> R_val;
+        for (int x = 0; x < useful_match.size(); x++) {
+            cv::Mat R_ = useful_match.at(x);
+            cv::Mat T_ = thread_args->template_list.at(temp_index);
+            cv::Mat I_ = thread_args->gp_orig.at(x);
+            HighlightResult res = highlight(R_, T_, I_);
+            R_val.push_back(res);
         }
+        int highest_match_pos = 0;
+        for (int index = 0; index < R_val.size(); index++) {
+            if (R_val.at(index).val > R_val.at(highest_match_pos).val) {
+                highest_match_pos = index;
+            }
+        }
+        cv::Point highest_match_loc = R_val.at(highest_match_pos).loc;
+        pthread_mutex_lock(thread_args->mutex);
+        thread_args->match_box_list.push_back(highest_match_loc * pow(2, highest_match_pos));
+        pthread_mutex_unlock(thread_args->mutex);
     }
-    cv::Point highest_match_loc = R_val.at(highest_match_pos).loc;
-    pthread_mutex_lock(thread_args->mutex);
-    thread_args->match_box_list->push_back(highest_match_loc * pow(2, highest_match_pos));
-    pthread_mutex_unlock(thread_args->mutex);
     return NULL;
 }
 
@@ -187,11 +189,12 @@ cv::Rect find_sign(cv::Mat orig_img, std::vector<cv::Mat> template_list) {
     
 
     for (int i = 0; i < num_threads; i++) {
-        thread_args[i].index = i;
+        thread_args[i].start_index = i * templates_per_thread;
+        thread_args[i].end_index = (i + 1) * templates_per_thread;
         thread_args[i].orig_img = orig_img_copy;
         thread_args[i].template_list = template_list;
         thread_args[i].gp_orig = gp_orig;
-        thread_args[i].match_box_list = &match_box_list;
+        thread_args[i].match_box_list = match_box_list;
         thread_args[i].mutex = &mutex;
         pthread_create(&threads[i], NULL, match_template, &thread_args[i]);
     }
@@ -201,12 +204,25 @@ cv::Rect find_sign(cv::Mat orig_img, std::vector<cv::Mat> template_list) {
         pthread_join(threads[i], NULL);
     }
 
-    // std::cout << "Array size: " << match_box_list.size() << std::endl;
-
-    cv::Point match_point = validate_pos(find_match_box(match_box_list), orig_img_copy);
-    cv::Point box_size = get_relative_size(orig_img.cols, orig_img.rows);
-    cv::Rect draw_box = {match_point.x, match_point.y, box_size.x, box_size.y};
-    return draw_box;
+    std::cout << "After join" << std::endl;
+    
+    // cv::Point highest_match_loc = match_box_list.at(0);
+    // float highest_match_val = -1.0f;
+    // for (int i = 0; i < match_box_list.size(); i++) {
+    //     if (match_box_list.at(i).y > highest_match_val) {
+    //         highest_match_loc = match_box_list.at(i);
+    //         highest_match_val = match_box_list.at(i).y;
+    //     }
+    // }
+    
+    // int sign_width = template_list.at(0).cols;
+    // int sign_height = template_list.at(0).rows;
+    // int sign_x = highest_match_loc.x - (sign_width / 2);
+    // int sign_y = highest_match_loc.y - (sign_height / 2);
+    // cv::Rect sign_rect(sign_x, sign_y, sign_width, sign_height);
+    // return sign_rect;
+    cv::Rect sign_rect={1, 1, 1, 1};
+    return sign_rect;
 }
 
 
@@ -233,24 +249,6 @@ int main(){
         }  
     }
 
-    cv::Mat trea_template_orig = cv::imread("../pics/07-T.jpg");
-    cv::Mat trea_template_resize;
-    cv::resize(trea_template_orig, trea_template_resize, cv::Size(128,128));
-    struct img_n_level sq_trea_temp_and_nlevels = make_square(trea_template_resize);
-    trea_template_list.push_back(sq_trea_temp_and_nlevels.img);
-
-    std::vector<cv::Mat> hr_trea_temp = half_resolution_image(sq_trea_temp_and_nlevels.img, sq_trea_temp_and_nlevels.level-3);
-
-    for (int index_btn_hr = 0; index_btn_hr < hr_trea_temp.size(); index_btn_hr++)
-    {
-        struct img_n_level sq_temp_img = make_square(hr_trea_temp.at(index_btn_hr));
-        std::vector<cv::Mat> gpT = gen_gaussian_pyramid(sq_temp_img.img, sq_temp_img.level);
-        for (int gpt_index = 0; gpt_index < gpT.size(); gpt_index++)
-        {
-            trea_template_list.push_back(gpT.at(gpt_index));
-        }  
-    }
-
     
 
     std::vector<cv::Mat> img_list;
@@ -272,13 +270,13 @@ int main(){
 
     for (int index = 0; index < img_list.size(); index++)
     {
-        // find_sign(img_list.at(index), btn_template_list);
-        cv::Rect bt_draw_box = find_sign(img_list.at(index), btn_template_list);
-        std::cout << "Img Index: " << index << " challenge button " << bt_draw_box << std::endl;
-
-        cv::Rect trea_draw_box = find_sign(img_list.at(index), trea_template_list);
-        std::cout << "Img Index: " << index << " Treasure Sign " << trea_draw_box << std::endl;
-        
+        find_sign(img_list.at(index), btn_template_list);
+        // cv::Rect bt_draw_box = find_sign(img_list.at(index), btn_template_list);
+        // std::cout << "Img Index: " << index << " challenge button " << bt_draw_box << std::endl;
+        // cv::Mat match_img = draw_rect(img_list.at(index), draw_box);
+        // namedWindow("Square Image", cv::WINDOW_NORMAL);
+        // imshow("Square Image", match_img);
+        // cv::waitKey(0);
 
     }
 
