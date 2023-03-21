@@ -1,5 +1,7 @@
-OpenMP Version:
 Arm version of Ubuntu under a virtual machine in MacOS:
+
+OpenMP Version:
+
 6 threads:
 parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
 Benchmark 1: ./a.out
@@ -26,3 +28,8 @@ parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_406
 Benchmark 1: ./a.out
   Time (mean ± σ):     218.469 s ±  4.234 s    [User: 195.000 s, System: 23.715 s]
   Range (min … max):   212.808 s … 225.310 s    10 runs
+
+
+
+Arm version of Ubuntu under a virtual machine in Windows:
+4 threads:

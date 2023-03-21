@@ -312,7 +312,7 @@ public:
 
 int main(){
 
-    omp_set_num_threads(2);
+    omp_set_num_threads(4);
     // cout << "Hello World" << endl;
     std::string trea_template_path = "../pics/07-T.jpg";
     std::string cb_template_path = "../pics/03-T.jpg";
@@ -344,8 +344,8 @@ int main(){
     {
         cv::Rect bt_draw_box = bt->find_sign(img_list.at(index));
         std::cout << "Img Index: " << index << " challenge button " << bt_draw_box << std::endl;
-        cv::Rect tc_draw_box = td->find_sign(img_list.at(index));
-        std::cout << "Img Index: " << index << " treasure button " << tc_draw_box << std::endl;
+        // cv::Rect tc_draw_box = td->find_sign(img_list.at(index));
+        // std::cout << "Img Index: " << index << " treasure button " << tc_draw_box << std::endl;
         // cv::Mat match_img = draw_rect(img_list.at(index), draw_box);
         // namedWindow("Square Image", cv::WINDOW_NORMAL);
         // imshow("Square Image", match_img);
