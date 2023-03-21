@@ -1,45 +1,48 @@
 Arm version of Ubuntu under a virtual machine in MacOS:
 
 OpenMP Version:
+    6 threads:
+    parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
+    Benchmark 1: ./a.out
+    Time (mean ± σ):     61.360 s ±  1.985 s    [User: 273.244 s, System: 28.271 s]
+    Range (min … max):   58.232 s … 65.122 s    10 runs
+    
+    4 threads:
+    parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
+    Benchmark 1: ./a.out
+    Time (mean ± σ):     66.809 s ±  5.278 s    [User: 223.668 s, System: 26.352 s]
+    Range (min … max):   60.364 s … 73.523 s    10 runs
 
-6 threads:
-parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
-Benchmark 1: ./a.out
-  Time (mean ± σ):     61.360 s ±  1.985 s    [User: 273.244 s, System: 28.271 s]
-  Range (min … max):   58.232 s … 65.122 s    10 runs
- 
-4 threads:
-parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
-Benchmark 1: ./a.out
-  Time (mean ± σ):     66.809 s ±  5.278 s    [User: 223.668 s, System: 26.352 s]
-  Range (min … max):   60.364 s … 73.523 s    10 runs
 
-
-2 threads:
-parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
-Benchmark 1: ./a.out
-  Time (mean ± σ):     115.998 s ±  1.213 s    [User: 198.042 s, System: 22.637 s]
-  Range (min … max):   113.964 s … 117.511 s    10 runs
+    2 threads:
+    parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/omp_ver$ hyperfine "./a.out"
+    Benchmark 1: ./a.out
+    Time (mean ± σ):     115.998 s ±  1.213 s    [User: 198.042 s, System: 22.637 s]
+    Range (min … max):   113.964 s … 117.511 s    10 runs
 
 
 Sequential Version:
-
-parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/seq_ver$ hyperfine "./a.out"
-Benchmark 1: ./a.out
-  Time (mean ± σ):     218.469 s ±  4.234 s    [User: 195.000 s, System: 23.715 s]
-  Range (min … max):   212.808 s … 225.310 s    10 runs
+    parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/seq_ver$ hyperfine "./a.out"
+    Benchmark 1: ./a.out
+    Time (mean ± σ):     218.469 s ±  4.234 s    [User: 195.000 s, System: 23.715 s]
+    Range (min … max):   212.808 s … 225.310 s    10 runs
 
 
 Pthread version:
-6 cores:
-parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/pthread_ver$ hyperfine "./a.out"
-Benchmark 1: ./a.out
-  Time (mean ± σ):     39.757 s ±  0.330 s    [User: 201.375 s, System: 24.230 s]
-  Range (min … max):   39.440 s … 40.495 s    10 runs
+    6 cores:
+    parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/pthread_ver$ hyperfine "./a.out"
+    Benchmark 1: ./a.out
+    Time (mean ± σ):     39.757 s ±  0.330 s    [User: 201.375 s, System: 24.230 s]
+    Range (min … max):   39.440 s … 40.495 s    10 runs
 
-4 cores:
-parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/pthread_ver$ hyperfine "./a.out"
-Benchmark 1: ./a.out
-  Time (mean ± σ):     58.925 s ±  2.024 s    [User: 205.556 s, System: 21.497 s]
-  Range (min … max):   57.864 s … 64.523 s    10 runs
+    4 cores:
+    parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/pthread_ver$ hyperfine "./a.out"
+    Benchmark 1: ./a.out
+    Time (mean ± σ):     58.925 s ±  2.024 s    [User: 205.556 s, System: 21.497 s]
+    Range (min … max):   57.864 s … 64.523 s    10 runs
 
+    2 cores:
+    parallels@ubuntu-linux-22-04-desktop:~/Desktop/Parallels Shared Folders/CSCI_4060U_Massively_Parallel_Programming/CSCI4060U_Lab/Final_Proj/pthread_ver$ hyperfine "./a.out"
+    Benchmark 1: ./a.out
+    Time (mean ± σ):     118.485 s ±  1.277 s    [User: 207.266 s, System: 20.330 s]
+    Range (min … max):   116.262 s … 119.794 s    10 runs
