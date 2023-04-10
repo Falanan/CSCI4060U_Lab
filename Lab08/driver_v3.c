@@ -20,12 +20,40 @@
 // 4.000000        7.000000        10.000000
 // 5.000000        9.000000        13.000000
 
-// Benchmark:
+/*
+Benchmark:
 
-// (base) wenbo@WenbodeMacBook-Pro Lab08 % hyperfine "./ocl"
-// Benchmark 1: ./ocl
-//   Time (mean ± σ):      23.0 ms ±   1.8 ms    [User: 6.4 ms, System: 7.7 ms]
-//   Range (min … max):    19.4 ms …  28.4 ms    107 runs
+
+OpenCL version
+(base) wenbo@WenbodeMacBook-Pro Lab08 % hyperfine "./ocl"
+Benchmark 1: ./ocl
+  Time (mean ± σ):      23.0 ms ±   1.8 ms    [User: 6.4 ms, System: 7.7 ms]
+  Range (min … max):    19.4 ms …  28.4 ms    107 runs
+
+Sequential Version：
+(base) wenbo@WenbodeMacBook-Pro Lab08 % hyperfine "./seq" 
+Benchmark 1: ./seq
+  Time (mean ± σ):       0.7 ms ±   0.6 ms    [User: 0.2 ms, System: 0.2 ms]
+  Range (min … max):     0.0 ms …   3.9 ms    724 runs
+
+It can be seen that the  speed of sequential program is much faster than the OpenCL verison,
+here are some possible reasons lead to the problem.
+
+1. To run the code on GPU, the program need to copy the data from the CPU memory to GPU memory. It cost time.
+2. The matrixs are too small, the time to copy data is greater than the computation time. 
+    For larger matrix, the computation speed on GPU definitely faster than on CPU.
+3. Copy the data back to CPU memory also costs time. 
+
+These are the possible reasons of the speed of parallel version slower than the sequential version.
+
+How to improve?
+1. For smaller size matrixs, we can use pthread or openMP to compute the result, it will reduce the cost of coping data between devices.
+2. Only use GPU when the matrix is larger than a certain value. Like, we can keep increase the matrixs size,
+    and see when the computation speed on GPU faster than that on CPU. Then use if else decition to deside when using GPU and CPU.
+
+*/
+
+
 
 #include <fcntl.h>
 #include <stdio.h>
