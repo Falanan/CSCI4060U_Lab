@@ -42,8 +42,7 @@ public:
         std::vector<int> highest_possible_x_pos;
         std::vector<int> highest_possible_y_pos;
 
-        // omp_set_num_threads(2);
-
+        omp_set_num_threads(x_val.size() + y_val.size());
         #pragma omp parallel
         {
             #pragma omp for nowait
@@ -120,6 +119,7 @@ public:
         int x_avg = 0;
         int y_avg = 0;
 
+        omp_set_num_threads(highest_possible_x_pos.size() + highest_possible_y_pos.size());
         #pragma omp parallel
         {
             #pragma omp for nowait
@@ -196,7 +196,7 @@ public:
         std::vector<int> highest_possible_y_pos;
 
         // omp_set_num_threads(2);
-
+        omp_set_num_threads(x_val.size() + y_val.size());
         #pragma omp parallel
         {
             #pragma omp for nowait
@@ -273,6 +273,7 @@ public:
         int x_avg = 0;
         int y_avg = 0;
 
+        omp_set_num_threads(highest_possible_x_pos.size() + highest_possible_y_pos.size());
         #pragma omp parallel
         {
             #pragma omp for nowait
@@ -314,7 +315,7 @@ public:
 
 int main(){
 
-    omp_set_num_threads(6);
+    // omp_set_num_threads(6);
     // cout << "Hello World" << endl;
     std::string trea_template_path = "../pics/07-T.jpg";
     std::string cb_template_path = "../pics/03-T.jpg";

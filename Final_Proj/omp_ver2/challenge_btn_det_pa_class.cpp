@@ -1,15 +1,22 @@
+// #include <iostream>
+// #include <vector>
+// #include <opencv2/opencv.hpp>
+// #include <opencv2/imgproc.hpp>
+// #include <cmath>
+// #include <algorithm>
 
 #include "Build_In_Funcs.h"
+#define NUM_THREADS 4
 
 using namespace std;
 
-class detector
+class challenge_btn_det_class
 {
-protected:
+private:
     std::vector<cv::Mat> template_list;
 public:
 
-detector(string template_path){
+challenge_btn_det_class(string template_path){
     // read the image
     // cv::Mat template_orig = cv::imread("pics/03-T.jpg");
     cv::Mat template_orig = cv::imread(template_path);
@@ -24,6 +31,7 @@ detector(string template_path){
     std::vector<cv::Mat> hr_temp = half_resolution_image(sq_temp_and_nlevels.img, sq_temp_and_nlevels.level-3);
 
     // generate gaussian down pyramid for each resolution level, then append the image to the template list
+    #pragma omp parallel for
     for (int index_hr = 0; index_hr < hr_temp.size(); index_hr++)
     {
         struct img_n_level sq_temp_img = make_square(hr_temp.at(index_hr));
@@ -37,7 +45,7 @@ detector(string template_path){
 }
 
 // Deconstructor
-~detector(){
+~challenge_btn_det_class(){
     for (auto& mat : template_list) {
             mat.release();
         }
@@ -61,6 +69,8 @@ cv::Point find_sign(cv::Mat orig_img){
 
     std::vector<cv::Point> match_box_list;
 
+
+    #pragma omp parallel for
     for (int temp_index = 0; temp_index < this->template_list.size(); temp_index++)
     {
         // cout << "Index: " << temp_index << endl;
@@ -75,7 +85,7 @@ cv::Point find_sign(cv::Mat orig_img){
                     useful_match.push_back(R);
                 }
         }
-
+        
         vector<HighlightResult> R_val;
         for (int x = 0; x < useful_match.size(); x++)
         {
@@ -101,6 +111,9 @@ cv::Point find_sign(cv::Mat orig_img){
         
     }
 
+    
+
+
     cv::Point match_point = find_match_box(match_box_list);
 
     cv::Point box_size = get_relative_size(orig_img.rows, orig_img.cols);
@@ -116,3 +129,20 @@ cv::Point find_sign(cv::Mat orig_img){
 }
 
 };
+
+
+
+
+int main(){
+
+    omp_set_num_threads(NUM_THREADS);
+    // cout << "Hello World" << endl;
+    string template_path = "../pics/03-T.jpg";
+    cv::Mat img = cv::imread("../testimg/03-t-0-1.jpg");
+    challenge_btn_det_class* bt = new challenge_btn_det_class(template_path);
+
+    bt->find_sign(img);
+
+
+    return 0;
+}

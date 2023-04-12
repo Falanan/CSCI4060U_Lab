@@ -1,3 +1,5 @@
+// g++ challenge_button_det_pa.cpp -std=c++11 `pkg-config --cflags --libs opencv4`
+
 #include "Build_In_Funcs.h"
 
 
