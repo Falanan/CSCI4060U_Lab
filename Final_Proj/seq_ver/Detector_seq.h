@@ -1,5 +1,9 @@
 #include "Build_In_Funcs.h"
 
+
+/**
+ * Parent class
+*/
 class Detector
 {
 protected:
@@ -25,7 +29,7 @@ Detector(std::string template_path){
     // generate half-resulation images for the original template
     std::vector<cv::Mat> hr_temp = half_resolution_image(sq_temp_and_nlevels.img, sq_temp_and_nlevels.level-3);
 
-    // generate gaussian down pyramid for each resolution level, then append the image to the template list
+    // generate gaussian pyramid for each resolution level, then append the image to the template list
     for (int index_hr = 0; index_hr < hr_temp.size(); index_hr++)
     {
         struct img_n_level sq_temp_img = make_square(hr_temp.at(index_hr));
@@ -46,6 +50,10 @@ Detector(std::string template_path){
     template_list.clear();
 }
 
+
+/**
+ * This function is used to find the actural size of the tempalte respect to different resolutions of original image
+*/
 virtual cv::Point get_relative_size(int img_width, int img_height){
 
     double temp_box_width = img_width / 672.0;
@@ -55,6 +63,11 @@ virtual cv::Point get_relative_size(int img_width, int img_height){
 }
 
 
+/**
+ * Performance template matching function
+ * Call find_match_box(), validate_pos(), get_relative_size() function.
+ * The return value is the actrual box of the highest possible matching position
+*/
 virtual cv::Rect find_sign(cv::Mat orig_img){
     cv::Mat orig_img_copy = orig_img.clone();
     struct img_n_level sq_orig_img_and_nlevels = make_square(orig_img_copy);
@@ -137,6 +150,9 @@ virtual cv::Point validate_pos(cv::Point match, cv::Mat orig_img){
 
 }
 
+/**
+ * This function performance the data clustring
+*/
 virtual cv::Point find_match_box(std::vector<cv::Point> match_box_list){
 
     std::vector<int> x_val;

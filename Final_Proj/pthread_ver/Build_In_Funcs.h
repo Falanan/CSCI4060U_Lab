@@ -30,6 +30,17 @@ struct HighlightResult {
 //     pthread_mutex_t& mutex;     // Mutex to synchronize access to the result vector
 // };
 
+
+
+/**
+Finds the location of maximum (or minimum) matching response, and 
+draws a rectangle on the image around this location.  The
+size of the rectangle is determined by template T.
+
+Returns an image with the drawn rectangle.  Also returns the loc and
+the value (maximum or minimum as the case may be).  The original image
+remains unchanged.
+*/
 HighlightResult highlight(cv::Mat R, cv::Mat T, cv::Mat I, bool use_max=true) {
     cv::Mat I_;
     I.copyTo(I_);
@@ -97,6 +108,7 @@ std::vector<cv::Mat> half_resolution_image(cv::Mat I, int levels = 6)
     return pI;
 }
 
+// This function is used to draw the final match box
 cv::Mat draw_rect(cv::Mat I, cv::Rect bbox) {
     /*
     This function is used to draw the final match box
