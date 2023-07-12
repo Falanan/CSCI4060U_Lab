@@ -1,4 +1,7 @@
 # CSCI 4060U Final Project Report
+
+### For more detail please see
+
 ## Useful file structure
 
 <pre><font color="#12488B"><b>.</b></font>
