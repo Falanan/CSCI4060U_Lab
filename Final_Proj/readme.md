@@ -1,6 +1,6 @@
 # CSCI 4060U Final Project Report
 
-### For more detail please see
+### For more detail please see ([Report.md](https://github.com/Falanan/CSCI4060U_Lab/blob/main/Final_Proj/Report.md))
 
 ## Useful file structure
 
